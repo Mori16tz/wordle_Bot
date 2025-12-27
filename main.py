@@ -26,6 +26,7 @@ async def analyze_answer(message: discord.Message):
     word = get_word_today()
     guess = message.content.lower()
     output = ""
+    emoji_word = ""
     if user is None:
         return
     if user.answered:
@@ -48,6 +49,7 @@ async def analyze_answer(message: discord.Message):
         update_user(user)
         return
     for index, charackter in enumerate(guess):
+        emoji_word += f":regional_indicator_{charackter}:"
         if charackter not in word:
             output += "🟥"
             continue
@@ -56,12 +58,11 @@ async def analyze_answer(message: discord.Message):
             continue
         output += "🟨"
     if user.guesses < 5:
-        output += "\nDu hast noch " + \
-            str(5 - user.guesses) + " Versuche übrig."
+        output += "\nDu hast noch " + str(5 - user.guesses) + " Versuche übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas" \
             "Wort war "+word
-    await message.reply(str(output))
+    await message.reply(emoji_word + "\n" + output)
     update_user(user)
 
 
