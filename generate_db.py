@@ -1,4 +1,5 @@
-from database import add_word
+from database import Languages, add_word
+
 wordlist = []
 with open("valid_words.txt", encoding="utf8") as f:
     for line in f:
@@ -6,4 +7,4 @@ with open("valid_words.txt", encoding="utf8") as f:
 
 with open("possible_guesses.txt", encoding="utf8") as f:
     for line in f:
-        add_word(line.strip(), line.strip() in wordlist)
+        add_word(line.strip(), Languages.EN, line.strip() in wordlist)
