@@ -11,7 +11,8 @@ from database import (add_user, generate_words_today, get_all_words, get_user,
 
 load_dotenv()
 
-bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
+bot = commands.Bot(command_prefix="",
+                   intents=discord.Intents.all(), help_command=None)
 
 
 @bot.event
@@ -45,24 +46,27 @@ async def analyze_answer(message: discord.Message):
         )
         update_user(user)
         return
-    characters = [a for a in word]
     correct, wrong_place, not_in_word = [], [], []
-    for a in range(0, 5):
-        if guess[a] == word[a]:
-            correct.append(word[a])
-            characters.remove(word[a])
-        elif guess[a] in characters:
-            wrong_place.append(guess[a])
-            characters.remove(guess[a])
+    for i in range(0, 5):
+        found = False
+        if guess[i] == word[i]:
+            correct.append(word[i])
         else:
-            not_in_word.append(guess[a])
+            for j in range(i, 5):
+                if guess[i] == word[j] and guess[j] != word[j]:
+                    wrong_place.append(guess[i])
+                    found = True
+                    break
+            if not found:
+                not_in_word.append(guess[i])
     output = "Korrekte Buchstaben: " + ", ".join(correct)
     output += "\nBuchstaben an der falschen Stelle: " + ", ".join(wrong_place)
     output += "\nBuchstaben, die nicht im Wort enthalten sind: " + ", ".join(
         not_in_word
     )
     if user.guesses > 0:
-        output += "\nDu hast noch " + str(5 - user.guesses) + " Versuche übrig."
+        output += "\nDu hast noch " + \
+            str(5 - user.guesses) + " Versuche übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten."
     await message.reply(str(output))
