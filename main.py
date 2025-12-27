@@ -1,9 +1,12 @@
+from datetime import datetime, time
 import os
+from zoneinfo import ZoneInfo
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from database import (
     add_user,
+    generate_word,
     get_users,
     get_user,
     update_user,
@@ -19,6 +22,7 @@ bot = commands.Bot(command_prefix="",
 
 @bot.event
 async def on_ready():
+    sync_clock.start()
     await bot.tree.sync()
 
 
@@ -91,6 +95,26 @@ async def test(interaction: discord.Interaction):
 @bot.tree.command(name="info", description="Erhalte Infos über die Funktionalität des Bots.")
 async def info(interaction: discord.Interaction):
     await interaction.response.send_message("Einfach dem Bot eine PN schreiben um zu beginnen. Jede PN wird als Guess gewertet. Jeder User hat pro Tag 5 Guesses. Um 0 Uhr wird ein neues Wort gewählt.", ephemeral=True)
+
+
+@tasks.loop(minutes=1)
+async def sync_clock():
+    berlin_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
+    time_delta = berlin_time.utcoffset()
+
+    dummy_date = datetime.combine(datetime.now(), time(0, 0, 0))
+    adjusted_date = dummy_date - time_delta
+    adjusted_time = adjusted_date.time()
+
+    update_word.change_interval(time=adjusted_time)
+
+    if not update_word.is_running():
+        update_word.start()
+
+
+@tasks.loop(hours=200000)
+async def update_word():
+    generate_word()
 
 
 bot.run(os.getenv("TOKEN", "no token set"))
