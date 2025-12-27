@@ -25,6 +25,7 @@ async def analyze_answer(message: discord.Message):
     user = get_user(message.author.id)
     word = get_word_today()
     guess = message.content.lower()
+    output = ""
     if user is None:
         return
     if user.answered:
@@ -46,24 +47,18 @@ async def analyze_answer(message: discord.Message):
         )
         update_user(user)
         return
-    correct, wrong_place, not_in_word = [], [], []
     for i in range(0, 5):
         found = False
         if guess[i] == word[i]:
-            correct.append(word[i])
+            output += "\U0001F7E9"
         else:
             for j in range(i, 5):
                 if guess[i] == word[j] and guess[j] != word[j]:
-                    wrong_place.append(guess[i])
+                    output += "\U0001F7E8"
                     found = True
                     break
             if not found:
-                not_in_word.append(guess[i])
-    output = "Korrekte Buchstaben: " + ", ".join(correct)
-    output += "\nBuchstaben an der falschen Stelle: " + ", ".join(wrong_place)
-    output += "\nBuchstaben, die nicht im Wort enthalten sind: " + ", ".join(
-        not_in_word
-    )
+                output += "\U0001F7E5"
     if user.guesses > 0:
         output += "\nDu hast noch " + \
             str(5 - user.guesses) + " Versuche übrig."
