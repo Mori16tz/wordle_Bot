@@ -30,7 +30,7 @@ async def analyze_answer(message: discord.Message):
             await message.reply("Du hast das Wort für heute bereits erraten.")
             return
         guess = message.content.lower()
-        if user.guesses == 0:
+        if user.guesses == 5:
             await message.reply("Du hattest heute bereits 5 Versuche, das Wort zu erraten.")
             return
         if len(guess) != 5:
@@ -40,10 +40,10 @@ async def analyze_answer(message: discord.Message):
             await message.reply("Das Wort enthält nur Buchstaben.")
             return
         if guess == word:
-            user.guesses -= 1
-            await message.reply(f"Du hast das Wort in {5-user.guesses} Versuchen erraten!")
+            user.guesses += 1
             user.answered = True
             user.streak += 1
+            await message.reply(f"Du hast das Wort in {user.guesses} Versuchen erraten!\nDamit hast du an {user.streak} Tagen in Folge das Wort erraten.")
             update_user(user)
             return
         if not guess in get_words():

@@ -13,7 +13,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()
-    guesses: Mapped[int] = mapped_column(default=5)
+    guesses: Mapped[int] = mapped_column(default=0)
     streak: Mapped[int] = mapped_column(default=0)
     answered: Mapped[bool] = mapped_column(default=False)
 
@@ -105,6 +105,6 @@ def update_users() -> None:
     for user in get_users():
         if not user.answered and user.streak > 0:
             user.streak = 0
-        user.guesses = 5
+        user.guesses = 0
         user.answered = False
         update_user(user)
