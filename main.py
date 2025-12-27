@@ -1,6 +1,6 @@
 import os
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from database import (
     add_user,
@@ -60,14 +60,15 @@ async def analyze_answer(message: discord.Message):
                 characters.remove(guess[a])
             else:
                 not_in_word.append(guess[a])
-        user.guesses -= 1
+        user.guesses += 1
         output = "Korrekte Buchstaben: "+', '.join(correct)
         output += "\nBuchstaben an der falschen Stelle: " + \
             ', '.join(wrong_place)
         output += "\nBuchstaben, die nicht im Wort enthalten sind: " + \
             ', '.join(not_in_word)
         if user.guesses > 0:
-            output += "\nDu hast noch "+str(user.guesses)+" Versuche übrig."
+            output += "\nDu hast noch " + \
+                str(5 - user.guesses)+" Versuche übrig."
         else:
             output += "\nDu hast das Wort nicht in 5 Versuchen erraten."
         await message.reply(str(output))
