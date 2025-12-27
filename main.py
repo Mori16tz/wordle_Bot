@@ -52,18 +52,19 @@ async def analyze_answer(message: discord.Message):
         if guess[i] == word[i]:
             output += "\U0001F7E9"
         else:
-            for j in range(i, 5):
+            for j in range(0, 5):
                 if guess[i] == word[j] and guess[j] != word[j]:
                     output += "\U0001F7E8"
                     found = True
                     break
             if not found:
                 output += "\U0001F7E5"
-    if user.guesses > 0:
+    if user.guesses < 5:
         output += "\nDu hast noch " + \
             str(5 - user.guesses) + " Versuche übrig."
     else:
-        output += "\nDu hast das Wort nicht in 5 Versuchen erraten."
+        output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas" \
+            "Wort war "+word
     await message.reply(str(output))
     update_user(user)
 
