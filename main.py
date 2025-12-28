@@ -1,15 +1,12 @@
-import os
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 import discord
 from discord.ext import commands, tasks
-from dotenv import load_dotenv
-
+from consts import OWNER_ID, TOKEN
 from database import (add_user, generate_words_today, get_all_words, get_user,
                       get_users, get_word_today, reset_users, update_user)
 
-load_dotenv()
 
 bot = commands.Bot(command_prefix="",
                    intents=discord.Intents.all(), help_command=None)
@@ -47,6 +44,10 @@ async def analyze_answer(message: discord.Message):
             f"Damit hast du an {user.streak} Tagen in Folge das Wort erraten."
         )
         update_user(user)
+        await bot.get_user(OWNER_ID).send(
+            f"{message.author.display_name} hat das Wort in {user.guesses}"
+            "erraten."
+        )
         return
     for index, charackter in enumerate(guess):
         emoji_word += f":regional_indicator_{charackter}:"
@@ -58,7 +59,8 @@ async def analyze_answer(message: discord.Message):
             continue
         output += "🟨"
     if user.guesses < 5:
-        output += "\nDu hast noch " + str(5 - user.guesses) + " Versuche übrig."
+        output += "\nDu hast noch " + \
+            str(5 - user.guesses) + " Versuche übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas" \
             "Wort war "+word
@@ -112,4 +114,4 @@ async def update_word():
     reset_users()
 
 
-bot.run(os.getenv("TOKEN", "no token set"))
+bot.run(TOKEN)
