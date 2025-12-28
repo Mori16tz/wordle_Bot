@@ -126,7 +126,8 @@ def update_user(user: User) -> None:
 
 def reset_users() -> None:
     for user in get_users():
-        if not user.answered and user.streak > 0:
+        print(user.__dict__)
+        if not user.answered:
             user.streak = 0
         user.guesses = 0
         user.answered = False
