@@ -57,7 +57,8 @@ session = Session()
 
 
 def add_word(word: str, language: str, potential_answer: bool) -> None:
-    new_word = Word(word=word, language=language, potential_answer=potential_answer)
+    new_word = Word(word=word, language=language,
+                    potential_answer=potential_answer)
     session.add(new_word)
     session.commit()
 
@@ -71,10 +72,7 @@ def get_word_today(language=Languages.EN) -> str:
     for word in words:
         if word.word.language == language:
             return word.word.word
-    # daily word update failed -> run it manually
-    generate_words_today()
-    reset_users()
-    return get_word_today(language)
+    raise ValueError
 
 
 def get_all_words(language=Languages.EN) -> list[str]:

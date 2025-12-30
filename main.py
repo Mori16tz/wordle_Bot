@@ -20,7 +20,13 @@ async def on_ready():
 
 async def analyze_answer(message: discord.Message):
     user = get_user(message.author.id)
-    word = get_word_today()
+    word = ""
+    try:
+        word = get_word_today()
+    except ValueError:
+        generate_words_today()
+        reset_users()
+        word = get_word_today()
     guess = message.content.lower()
     output = ""
     emoji_word = ""
@@ -110,8 +116,11 @@ async def sync_clock():
 
 @tasks.loop(hours=200000)
 async def update_word():
-    generate_words_today()
-    reset_users()
+    try:
+        get_word_today()
+    except ValueError:
+        generate_words_today()
+        reset_users()
 
 
 bot.run(TOKEN)
