@@ -12,6 +12,14 @@ bot = commands.Bot(command_prefix="",
                    intents=discord.Intents.all(), help_command=None)
 
 
+def guesses(amount: int, correct=True):
+    if amount == 1:
+        return "1 Versuch"
+    if correct:
+        return f"{amount} Versuchen"
+    return f"{5 - amount} Versuche"
+
+
 @bot.event
 async def on_ready():
     sync_clock.start()
@@ -46,13 +54,13 @@ async def analyze_answer(message: discord.Message):
         user.answered = True
         user.streak += 1
         await message.reply(
-            f"Du hast das Wort in {user.guesses} Versuchen erraten!\n"
+            f"Du hast das Wort in {guesses(user.guesses)} erraten!\n"
             f"Damit hast du an {user.streak} Tagen in Folge das Wort erraten."
         )
         update_user(user)
         await bot.get_user(OWNER_ID).send(
-            f"{message.author.display_name} hat das Wort in {user.guesses}"
-            "erraten."
+            f"{message.author.display_name} hat das Wort in {guesses(user.guesses)}"
+            " erraten."
         )
         return
     for index, charackter in enumerate(guess):
@@ -65,12 +73,11 @@ async def analyze_answer(message: discord.Message):
             continue
         output += "🟨"
     if user.guesses < 5:
-        output += "\nDu hast noch " + \
-            str(5 - user.guesses) + " Versuche übrig."
+        output += f"\nDu hast noch {guesses(user.guesses, False)} übrig."
     else:
-        output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas" \
-            "Wort war "+word
-    await message.reply(emoji_word + "\n" + output)
+        output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas Wort war"\
+            f" {word}"
+    await message.reply(f"{emoji_word}\n{output}")
     update_user(user)
 
 
