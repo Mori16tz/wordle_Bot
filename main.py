@@ -19,7 +19,7 @@ def guesses(amount: int, correct=True):
         return "1 Versuch"
     if correct:
         return f"{amount} Versuchen"
-    return f"{5 - amount} Versuche"
+    return f"{6 - amount} Versuche"
 
 
 @bot.event
@@ -46,8 +46,8 @@ async def analyze_answer(message: discord.Message):
     if guess_data.answered:
         await message.reply("Du hast das Wort für heute bereits erraten.")
         return
-    if guess_data.guesses == 5:
-        await message.reply("Du hattest heute bereits 5 Versuche, das Wort zu erraten.")
+    if guess_data.guesses == 6:
+        await message.reply("Du hattest heute bereits 6 Versuche, das Wort zu erraten.")
         return
     if guess not in get_all_words(user.language):
         await message.reply("Dieses Wort ist kein valider Wordle-Guess.")
@@ -75,7 +75,7 @@ async def analyze_answer(message: discord.Message):
             output += "🟩"
             continue
         output += "🟨"
-    if guess_data.guesses < 5:
+    if guess_data.guesses < 6:
         output += f"\nDu hast noch {guesses(guess_data.guesses, False)} übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas Wort war"\
@@ -104,7 +104,7 @@ async def info(interaction: discord.Interaction):
     await interaction.response.send_message(
         "Einfach dem Bot eine PN schreiben um zu beginnen."
         " Jede PN wird als Guess gewertet."
-        " Jeder User hat pro Tag 5 Guesses. Um 0 Uhr wird ein neues Wort gewählt.",
+        " Jeder User hat pro Tag 6 Guesses. Um 0 Uhr wird ein neues Wort gewählt.",
         ephemeral=True,
     )
 
