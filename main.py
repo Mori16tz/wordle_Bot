@@ -3,9 +3,11 @@ from zoneinfo import ZoneInfo
 
 import discord
 from discord.ext import commands, tasks
+from discord import app_commands
 from consts import OWNER_ID, TOKEN
 from database import (add_user, generate_words_today, get_all_words, get_user,
-                      get_users, get_word_today, reset_users, update_user)
+                      get_users, get_word_today, reset_users, Languages,
+                      change_language, get_current_guess_data, update_user_guess_data)
 
 
 bot = commands.Bot(command_prefix="",
@@ -30,37 +32,38 @@ async def analyze_answer(message: discord.Message):
     user = get_user(message.author.id)
     word = ""
     try:
-        word = get_word_today()
+        word = get_word_today(user.language)
     except ValueError:
         generate_words_today()
         reset_users()
-        word = get_word_today()
+        word = get_word_today(user.language)
     guess = message.content.lower()
     output = ""
     emoji_word = ""
+    guess_data = get_current_guess_data(user)
     if user is None:
         return
-    if user.answered:
+    if guess_data.answered:
         await message.reply("Du hast das Wort für heute bereits erraten.")
         return
-    if user.guesses == 5:
+    if guess_data.guesses == 5:
         await message.reply("Du hattest heute bereits 5 Versuche, das Wort zu erraten.")
         return
-    if guess not in get_all_words():
+    if guess not in get_all_words(user.language):
         await message.reply("Dieses Wort ist kein valider Wordle-Guess.")
         return
-    user.guesses += 1
+    guess_data.guesses += 1
     if guess == word:
-        user.answered = True
-        user.streak += 1
+        guess_data.answered = True
+        guess_data.streak += 1
         await message.reply(
-            f"Du hast das Wort in {guesses(user.guesses)} erraten!\n"
-            f"Damit hast du an {user.streak} Tagen in Folge das Wort erraten."
+            f"Du hast das Wort in {guesses(guess_data.guesses)} erraten!\n"
+            f"Damit hast du an {guess_data.streak} Tagen in Folge das Wort erraten."
         )
-        update_user(user)
+        update_user_guess_data(guess_data)
         await bot.get_user(OWNER_ID).send(
-            f"{message.author.display_name} hat das Wort in {guesses(user.guesses)}"
-            " erraten."
+            f"{message.author.display_name} hat das Wort in "
+            " {guesses(guess_data.guesses)} erraten."
         )
         return
     for index, charackter in enumerate(guess):
@@ -72,13 +75,13 @@ async def analyze_answer(message: discord.Message):
             output += "🟩"
             continue
         output += "🟨"
-    if user.guesses < 5:
-        output += f"\nDu hast noch {guesses(user.guesses, False)} übrig."
+    if guess_data.guesses < 5:
+        output += f"\nDu hast noch {guesses(guess_data.guesses, False)} übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas Wort war"\
             f" {word}"
     await message.reply(f"{emoji_word}\n{output}")
-    update_user(user)
+    update_user_guess_data(guess_data)
 
 
 @bot.event
@@ -104,6 +107,17 @@ async def info(interaction: discord.Interaction):
         " Jeder User hat pro Tag 5 Guesses. Um 0 Uhr wird ein neues Wort gewählt.",
         ephemeral=True,
     )
+
+
+@bot.tree.command(
+    name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet"
+    " werden."
+)
+@app_commands.describe(sprache="Die Sprache vom Rätsel")
+async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
+    change_language(get_user(interaction.user.id), sprache)
+    await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.",
+                                            ephemeral=True)
 
 
 @tasks.loop(minutes=1)

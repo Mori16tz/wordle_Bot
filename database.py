@@ -11,6 +11,7 @@ Base = declarative_base()
 
 class Languages(StrEnum):
     EN = "en"
+    DE = "de"
 
 
 class User(Base):
@@ -18,9 +19,13 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()
-    guesses: Mapped[int] = mapped_column(default=0)
-    streak: Mapped[int] = mapped_column(default=0)
-    answered: Mapped[bool] = mapped_column(default=False)
+    language: Mapped[Languages] = mapped_column(
+        Enum(Languages, native_enum=False),
+        default=Languages.EN,
+        nullable=False)
+    user_guess_data: Mapped[list["UserGuessData"]] = relationship(
+        back_populates="user"
+    )
 
 
 class Word(Base):
@@ -46,6 +51,21 @@ class WordHistory(Base):
     word_id: Mapped[int] = mapped_column(ForeignKey("words.id"))
     date: Mapped[datetime.date] = mapped_column(nullable=False)
     word: Mapped[Word] = relationship(back_populates="word_history_entries")
+
+
+class UserGuessData(Base):
+    __tablename__ = "user_guesses"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), primary_key=True)
+    language: Mapped[Languages] = mapped_column(
+        Enum(Languages, native_enum=False),
+        primary_key=True
+    )
+    guesses: Mapped[int] = mapped_column(default=0)
+    streak: Mapped[int] = mapped_column(default=0)
+    answered: Mapped[bool] = mapped_column(default=False)
+    user: Mapped[User] = relationship(back_populates="user_guess_data")
 
 
 engine = create_engine("sqlite:///data.db")
@@ -124,9 +144,40 @@ def update_user(user: User) -> None:
 
 def reset_users() -> None:
     for user in get_users():
-        print(user.__dict__)
-        if not user.answered:
-            user.streak = 0
-        user.guesses = 0
-        user.answered = False
-        update_user(user)
+        for lang in Languages:
+            data = get_guess_data_lang(user, lang)
+            if not data:
+                continue
+            data.guesses = 0
+            data.answered = False
+            session.add(data)
+            session.commit()
+
+
+def change_language(user: User, language: Languages) -> None:
+    user.language = language
+    session.add(user)
+    session.commit()
+
+
+def get_current_guess_data(user: User) -> UserGuessData:
+    data = session.query(UserGuessData).filter(
+        UserGuessData.user_id == user.id,
+        UserGuessData.language == user.language).first()
+    if data:
+        return data
+    data = UserGuessData(user_id=user.id, language=user.language)
+    session.add(data)
+    session.commit()
+    return data
+
+
+def update_user_guess_data(data: UserGuessData) -> None:
+    session.add(data)
+    session.commit()
+
+
+def get_guess_data_lang(user: User, lang: Languages) -> UserGuessData:
+    data = session.query(UserGuessData).filter(UserGuessData.user_id == user.id,
+                                               UserGuessData.language == lang).first()
+    return data
