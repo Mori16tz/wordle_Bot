@@ -3,11 +3,11 @@ from zoneinfo import ZoneInfo
 
 import discord
 from discord.ext import commands, tasks
-from discord import app_commands
+# from discord import app_commands
 from consts import OWNER_ID, TOKEN
 from database import (add_user, generate_words_today, get_all_words, get_user,
-                      get_users, get_word_today, reset_users, Languages,
-                      change_language, get_current_guess_data, update_user_guess_data)
+                      get_users, get_word_today, reset_users, get_current_guess_data,
+                      update_user_guess_data)
 
 
 bot = commands.Bot(command_prefix="",
@@ -63,7 +63,7 @@ async def analyze_answer(message: discord.Message):
         update_user_guess_data(guess_data)
         await bot.get_user(OWNER_ID).send(
             f"{message.author.display_name} hat das Wort in "
-            " {guesses(guess_data.guesses)} erraten."
+            f"{guesses(guess_data.guesses)} erraten."
         )
         return
     for index, charackter in enumerate(guess):
@@ -109,15 +109,16 @@ async def info(interaction: discord.Interaction):
     )
 
 
-@bot.tree.command(
-    name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet"
-    " werden."
-)
-@app_commands.describe(sprache="Die Sprache vom Rätsel")
-async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
-    change_language(get_user(interaction.user.id), sprache)
-    await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.",
-                                            ephemeral=True)
+# @bot.tree.command(
+#     name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet"
+#     " werden."
+# )
+# @app_commands.describe(sprache="Die Sprache vom Rätsel")
+# async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
+#     change_language(get_user(interaction.user.id), sprache)
+#     await interaction.response.send_message(f"Die Sprache wurde zu {sprache}
+# geändert.",
+#                                             ephemeral=True)
 
 
 @tasks.loop(minutes=1)
