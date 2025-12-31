@@ -19,7 +19,7 @@ def guesses(amount: int, correct=True):
         return "1 Versuch"
     if correct:
         return f"{amount} Versuchen"
-    return f"{6 - amount} Versuche"
+    return f"{amount} Versuche"
 
 
 @bot.event
@@ -69,6 +69,7 @@ async def analyze_answer(message: discord.Message):
         return
     for i in range(0, 5):
         found = False
+        emoji_word += f":regional_indicator_{guess[i]}:"
         if guess[i] == word[i]:
             output += "🟩"
         else:
@@ -82,7 +83,7 @@ async def analyze_answer(message: discord.Message):
             if not found:
                 output += "🟥"
     if guess_data.guesses < 6:
-        output += f"\nDu hast noch {guesses(guess_data.guesses, False)} übrig."
+        output += f"\nDu hast noch {guesses(6 - guess_data.guesses, False)} übrig."
     else:
         output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas Wort war"\
             f" {word}"
