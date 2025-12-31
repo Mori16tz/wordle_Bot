@@ -10,8 +10,8 @@ Base = declarative_base()
 
 
 class Languages(StrEnum):
-    EN = "en"
-    DE = "de"
+    EN = "Englisch"
+    DE = "Deutsch"
 
 
 class User(Base):
