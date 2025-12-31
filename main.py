@@ -85,7 +85,7 @@ async def analyze_answer(message: discord.Message):
     if guess_data.guesses < 6:
         output += f"\nDu hast noch {guesses(6 - guess_data.guesses, False)} übrig."
     else:
-        output += "\nDu hast das Wort nicht in 5 Versuchen erraten.\nDas Wort war"\
+        output += "\nDu hast das Wort nicht in 6 Versuchen erraten.\nDas Wort war"\
             f" {word}"
     await message.reply(f"{emoji_word}\n{output}")
     update_user_guess_data(guess_data)
