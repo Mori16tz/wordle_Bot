@@ -41,6 +41,7 @@ async def analyze_answer(message: discord.Message):
     output = ""
     emoji_word = ""
     guess_data = get_current_guess_data(user)
+    marked = list(word)
     if user is None:
         return
     if guess_data.answered:
@@ -66,15 +67,20 @@ async def analyze_answer(message: discord.Message):
             f"{guesses(guess_data.guesses)} erraten."
         )
         return
-    for index, charackter in enumerate(guess):
-        emoji_word += f":regional_indicator_{charackter}:"
-        if charackter not in word:
-            output += "🟥"
-            continue
-        if word[index] == charackter:
+    for i in range(0, 5):
+        found = False
+        if guess[i] == word[i]:
             output += "🟩"
-            continue
-        output += "🟨"
+        else:
+            for j in range(0, 5):
+                if guess[i] == word[j] and guess[j] != word[j]:
+                    if word[j] in marked:
+                        output += "🟨"
+                        found = True
+                        marked.remove(word[j])
+                        break
+            if not found:
+                output += "🟥"
     if guess_data.guesses < 6:
         output += f"\nDu hast noch {guesses(guess_data.guesses, False)} übrig."
     else:
