@@ -62,7 +62,7 @@ async def handle_correct_guess(message: discord.Message, user: User, guess_data:
         text=f"Damit hast du an {guesses(guess_data.streak, "Tag")} in Folge das Wort erraten.")
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
-    await bot.get_user(OWNER_ID).send(f"{user.username} hat das Wort in {guesses(guess_data.guesses, "Versuch")} erraten.")
+    await bot.get_user(OWNER_ID).send(f"{user.username} hat das {user.language}e Wort in {guesses(guess_data.guesses, "Versuch")} erraten.")
 
 
 async def handle_incorrect_guess(message: discord.Message, user: User, guess_data: UserGuessData, word: str, guess: str) -> None:
