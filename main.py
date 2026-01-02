@@ -179,6 +179,9 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
     :param interaction: The discord interaction object.
     :param sprache: The selected language.
     """
+    user = get_user(interaction.user.id)
+    if user is None:
+        add_user(interaction.user.id, interaction.user.name)
     change_language(get_user(interaction.user.id), sprache)
     await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True)
 
