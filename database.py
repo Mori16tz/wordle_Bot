@@ -148,6 +148,8 @@ def reset_users() -> None:
             data = get_guess_data_lang(user, lang)
             if not data:
                 continue
+            if not data.answered and data.streak > 0:
+                data.streak=0
             data.guesses = 0
             data.answered = False
             session.add(data)
