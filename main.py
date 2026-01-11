@@ -214,6 +214,9 @@ async def update_word():
     except ValueError:
         generate_words_today()
         reset_users()
+    for user in get_users():
+        await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
+    
 
 
 bot.run(TOKEN)
