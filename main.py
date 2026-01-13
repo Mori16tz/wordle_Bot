@@ -208,11 +208,6 @@ async def info(interaction: discord.Interaction):
 @bot.tree.command(
     name="sprachauswahl",
     description="Ändere die Sprache in der Guesses gewertet werden.",
-    name_localizations={"en-US": "language_selection", "en-GB": "language_selection"},
-    description_localizations={
-        "en-US": "Change the language in which guesses are evaluated.",
-        "en-GB": "Change the language in which guesses are evaluated.",
-    },
 )
 @app_commands.describe(sprache="Die Sprache vom Wordle.")
 async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
@@ -229,21 +224,6 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
     await interaction.response.send_message(
         f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True
     )
-
-
-param = sprachauswahl._params["sprache"]
-
-param.name_localizations = {
-    "en-US": "language",
-    "en-GB": "language",
-    "de": "sprache",
-}
-
-param.description_localizations = {
-    "en-US": "The Wordle language.",
-    "en-GB": "The Wordle language.",
-    "de": "Die Sprache vom Wordle.",
-}
 
 
 @tasks.loop(minutes=1)

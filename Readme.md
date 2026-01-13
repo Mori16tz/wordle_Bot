@@ -10,7 +10,7 @@ Currently supporting:
 
 ## Ussage
 
-### /sprachauswahl
+### /sprachauswahl or /language_selection
 
 Allows the user to change the language.
 
