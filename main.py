@@ -170,7 +170,7 @@ async def info(interaction: discord.Interaction):
     await interaction.response.send_message("Einfach dem Bot eine PN schreiben um zu beginnen.\nJede PN wird als Versuch gewertet. Jeder User hat täglich 6 Versuche pro Sprache. Um 0 Uhr werden neue Wörter ausgelost.", ephemeral=True, )
 
 
-@bot.tree.command(name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet werden.")
+@bot.tree.command(name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet werden.", name_localizations={"en-US": "language_selection", "en-GB": "language_selection"}, description_localizations={"en-US": "Change the language in which guesses are evaluated.", "en-GB": "Change the language in which guesses are evaluated."})
 @app_commands.describe(sprache="Die Sprache vom Wordle.")
 async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
     """
@@ -184,6 +184,21 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
         add_user(interaction.user.id, interaction.user.name)
     change_language(get_user(interaction.user.id), sprache)
     await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True)
+
+
+param = sprachauswahl._params["sprache"]
+
+param.name_localizations = {
+    "en-US": "language",
+    "en-GB": "language",
+    "de": "sprache",
+}
+
+param.description_localizations = {
+    "en-US": "The Wordle language.",
+    "en-GB": "The Wordle language.",
+    "de": "Die Sprache vom Wordle.",
+}
 
 
 @tasks.loop(minutes=1)
