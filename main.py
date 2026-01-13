@@ -185,8 +185,8 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
         add_user(interaction.user.id, interaction.user.name)
     change_language(get_user(interaction.user.id), sprache)
     await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True)
-
-
+    
+    
 @tasks.loop(minutes=1)
 async def sync_clock():
     """
