@@ -100,6 +100,7 @@ async def handle_incorrect_guess(message: discord.Message, user: User, guess_dat
             text=f"Du hast noch {guesses(6 - guess_data.guesses, "Versuch", False)} übrig.")
     else:
         embed.set_footer(text=f"Das Wort war {word}, viel Glück morgen!")
+        await bot.get_user(OWNER_ID).send(f"{user.username} hat das Wort nicht erraten.")
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
 
@@ -229,6 +230,9 @@ async def update_word():
     except ValueError:
         generate_words_today()
         reset_users()
+    for user in get_users():
+        await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
+    
 
 
 bot.run(TOKEN)

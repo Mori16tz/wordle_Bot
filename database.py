@@ -75,6 +75,13 @@ session = Session()
 
 """ WORD """
 
+def get_word(word: str) -> Word:
+    return session.query(Word).filter(Word.word == word).first()
+
+def delete_word(word: str) -> None:
+    session.query(Word).filter(Word.word==word).delete()
+    print(f"{word} was deleted.")
+    session.commit()
 
 def add_word(word: str, language: str, potential_answer: bool) -> None:
     new_word = Word(word=word, language=language,
@@ -148,6 +155,8 @@ def reset_users() -> None:
             data = get_guess_data_lang(user, lang)
             if not data:
                 continue
+            if not data.answered and data.streak > 0:
+                data.streak=0
             data.guesses = 0
             data.answered = False
             session.add(data)
