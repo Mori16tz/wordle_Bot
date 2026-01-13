@@ -3,8 +3,13 @@ import random
 from enum import StrEnum
 
 from sqlalchemy import Enum, ForeignKey, create_engine
-from sqlalchemy.orm import (Mapped, declarative_base, mapped_column,
-                            relationship, sessionmaker)
+from sqlalchemy.orm import (
+    Mapped,
+    declarative_base,
+    mapped_column,
+    relationship,
+    sessionmaker,
+)
 
 Base = declarative_base()
 
@@ -20,12 +25,9 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column()
     language: Mapped[Languages] = mapped_column(
-        Enum(Languages, native_enum=False),
-        default=Languages.EN,
-        nullable=False)
-    user_guess_data: Mapped[list["UserGuessData"]] = relationship(
-        back_populates="user"
+        Enum(Languages, native_enum=False), default=Languages.EN, nullable=False
     )
+    user_guess_data: Mapped[list["UserGuessData"]] = relationship(back_populates="user")
 
 
 class Word(Base):
@@ -56,11 +58,9 @@ class WordHistory(Base):
 class UserGuessData(Base):
     __tablename__ = "user_guesses"
 
-    user_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
     language: Mapped[Languages] = mapped_column(
-        Enum(Languages, native_enum=False),
-        primary_key=True
+        Enum(Languages, native_enum=False), primary_key=True
     )
     guesses: Mapped[int] = mapped_column(default=0)
     streak: Mapped[int] = mapped_column(default=0)
@@ -75,17 +75,19 @@ session = Session()
 
 """ WORD """
 
+
 def get_word(word: str) -> Word:
     return session.query(Word).filter(Word.word == word).first()
 
+
 def delete_word(word: str) -> None:
-    session.query(Word).filter(Word.word==word).delete()
+    session.query(Word).filter(Word.word == word).delete()
     print(f"{word} was deleted.")
     session.commit()
 
+
 def add_word(word: str, language: str, potential_answer: bool) -> None:
-    new_word = Word(word=word, language=language,
-                    potential_answer=potential_answer)
+    new_word = Word(word=word, language=language, potential_answer=potential_answer)
     session.add(new_word)
     session.commit()
 
@@ -156,7 +158,7 @@ def reset_users() -> None:
             if not data:
                 continue
             if not data.answered and data.streak > 0:
-                data.streak=0
+                data.streak = 0
             data.guesses = 0
             data.answered = False
             session.add(data)
@@ -170,9 +172,13 @@ def change_language(user: User, language: Languages) -> None:
 
 
 def get_current_guess_data(user: User) -> UserGuessData:
-    data = session.query(UserGuessData).filter(
-        UserGuessData.user_id == user.id,
-        UserGuessData.language == user.language).first()
+    data = (
+        session.query(UserGuessData)
+        .filter(
+            UserGuessData.user_id == user.id, UserGuessData.language == user.language
+        )
+        .first()
+    )
     if data:
         return data
     data = UserGuessData(user_id=user.id, language=user.language)
@@ -187,6 +193,9 @@ def update_user_guess_data(data: UserGuessData) -> None:
 
 
 def get_guess_data_lang(user: User, lang: Languages) -> UserGuessData:
-    data = session.query(UserGuessData).filter(UserGuessData.user_id == user.id,
-                                               UserGuessData.language == lang).first()
+    data = (
+        session.query(UserGuessData)
+        .filter(UserGuessData.user_id == user.id, UserGuessData.language == lang)
+        .first()
+    )
     return data

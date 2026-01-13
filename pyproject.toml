@@ -1,0 +1,23 @@
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["your_package_name"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203",  # whitespace before ':', conflicts with black
+    "W503",  # line break before binary operator
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+]

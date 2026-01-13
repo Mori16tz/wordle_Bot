@@ -2,16 +2,27 @@ from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 import discord
-from discord.ext import commands, tasks
 from discord import app_commands
+from discord.ext import commands, tasks
+
 from consts import OWNER_ID, TOKEN
-from database import (User, UserGuessData, add_user, generate_words_today, get_all_words, get_user,
-                      get_users, get_word_today, reset_users, get_current_guess_data,
-                      update_user_guess_data, change_language, Languages)
+from database import (
+    Languages,
+    User,
+    UserGuessData,
+    add_user,
+    change_language,
+    generate_words_today,
+    get_all_words,
+    get_current_guess_data,
+    get_user,
+    get_users,
+    get_word_today,
+    reset_users,
+    update_user_guess_data,
+)
 
-
-bot = commands.Bot(command_prefix="",
-                   intents=discord.Intents.all(), help_command=None)
+bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
 
 
 def guesses(amount: int, word: str, n=True) -> str:
@@ -40,7 +51,9 @@ def wordle_language(lang: Languages) -> str:
     return lang.value + "es Wordle"
 
 
-async def handle_correct_guess(message: discord.Message, user: User, guess_data: UserGuessData, word: str) -> None:
+async def handle_correct_guess(
+    message: discord.Message, user: User, guess_data: UserGuessData, word: str
+) -> None:
     """
     Function that handles a correct guess by a user, sending them a congratulatory message.
 
@@ -56,16 +69,27 @@ async def handle_correct_guess(message: discord.Message, user: User, guess_data:
     for charackter in word:
         emoji_word += f":regional_indicator_{charackter}:"
         emoji_answer += "🟩"
-    embed = discord.Embed(title=wordle_language(
-        user.language), description=f"{emoji_word}\n{emoji_answer}")
+    embed = discord.Embed(
+        title=wordle_language(user.language),
+        description=f"{emoji_word}\n{emoji_answer}",
+    )
     embed.set_footer(
-        text=f"Damit hast du an {guesses(guess_data.streak, "Tag")} in Folge das Wort erraten.")
+        text=f"Damit hast du an {guesses(guess_data.streak, "Tag")} in Folge das Wort erraten."
+    )
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
-    await bot.get_user(OWNER_ID).send(f"{user.username} hat das {user.language}e Wort in {guesses(guess_data.guesses, "Versuch")} erraten.")
+    await bot.get_user(OWNER_ID).send(
+        f"{user.username} hat das {user.language}e Wort in {guesses(guess_data.guesses, "Versuch")} erraten."
+    )
 
 
-async def handle_incorrect_guess(message: discord.Message, user: User, guess_data: UserGuessData, word: str, guess: str) -> None:
+async def handle_incorrect_guess(
+    message: discord.Message,
+    user: User,
+    guess_data: UserGuessData,
+    word: str,
+    guess: str,
+) -> None:
     """
     Function that handles an incorrect guess by a user, sending them feedback on their guess.
 
@@ -93,14 +117,19 @@ async def handle_incorrect_guess(message: discord.Message, user: User, guess_dat
                         break
             if not found:
                 emoji_answer += "🟥"
-    embed = discord.Embed(title=wordle_language(
-        user.language), description=f"{emoji_word}\n{emoji_answer}")
+    embed = discord.Embed(
+        title=wordle_language(user.language),
+        description=f"{emoji_word}\n{emoji_answer}",
+    )
     if guess_data.guesses < 6:
         embed.set_footer(
-            text=f"Du hast noch {guesses(6 - guess_data.guesses, "Versuch", False)} übrig.")
+            text=f"Du hast noch {guesses(6 - guess_data.guesses, "Versuch", False)} übrig."
+        )
     else:
         embed.set_footer(text=f"Das Wort war {word}, viel Glück morgen!")
-        await bot.get_user(OWNER_ID).send(f"{user.username} hat das Wort nicht erraten.")
+        await bot.get_user(OWNER_ID).send(
+            f"{user.username} hat das Wort nicht erraten."
+        )
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
 
@@ -161,17 +190,30 @@ async def on_message(message: discord.Message):
         await analyze_answer(message)
 
 
-@bot.tree.command(name="info", description="Erhalte Infos über die Funktionalität des Bots.")
+@bot.tree.command(
+    name="info", description="Erhalte Infos über die Funktionalität des Bots."
+)
 async def info(interaction: discord.Interaction):
     """
     Command that sends information about the bot.
 
     :param interaction: The discord interaction object.
     """
-    await interaction.response.send_message("Einfach dem Bot eine PN schreiben um zu beginnen.\nJede PN wird als Versuch gewertet. Jeder User hat täglich 6 Versuche pro Sprache. Um 0 Uhr werden neue Wörter ausgelost.", ephemeral=True, )
+    await interaction.response.send_message(
+        "Einfach dem Bot eine PN schreiben um zu beginnen.\nJede PN wird als Versuch gewertet. Jeder User hat täglich 6 Versuche pro Sprache. Um 0 Uhr werden neue Wörter ausgelost.",
+        ephemeral=True,
+    )
 
 
-@bot.tree.command(name="sprachauswahl", description="Ändere die Sprache in der Guesses gewertet werden.", name_localizations={"en-US": "language_selection", "en-GB": "language_selection"}, description_localizations={"en-US": "Change the language in which guesses are evaluated.", "en-GB": "Change the language in which guesses are evaluated."})
+@bot.tree.command(
+    name="sprachauswahl",
+    description="Ändere die Sprache in der Guesses gewertet werden.",
+    name_localizations={"en-US": "language_selection", "en-GB": "language_selection"},
+    description_localizations={
+        "en-US": "Change the language in which guesses are evaluated.",
+        "en-GB": "Change the language in which guesses are evaluated.",
+    },
+)
 @app_commands.describe(sprache="Die Sprache vom Wordle.")
 async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
     """
@@ -184,7 +226,9 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Languages):
     if user is None:
         add_user(interaction.user.id, interaction.user.name)
     change_language(get_user(interaction.user.id), sprache)
-    await interaction.response.send_message(f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True)
+    await interaction.response.send_message(
+        f"Die Sprache wurde zu {sprache} geändert.", ephemeral=True
+    )
 
 
 param = sprachauswahl._params["sprache"]
@@ -232,7 +276,6 @@ async def update_word():
         reset_users()
     for user in get_users():
         await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
-    
 
 
 bot.run(TOKEN)
