@@ -7,9 +7,9 @@ from discord.ext import commands, tasks
 
 from common.consts import TOKEN
 from common.algorithm import analyze_answer
-from common.utils import update_word
+from common.utils import get_or_create_user, update_word
 from database.models import Language
-from database.user import get_or_create_user, update_user
+from database.user import update_user
 
 bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
 
@@ -23,7 +23,7 @@ async def on_ready() -> None:
 @bot.event
 async def on_message(message: discord.Message):
     if message.author != bot.user and type(message.channel) is DMChannel:
-        await analyze_answer(message)
+        await analyze_answer(message, bot)
 
 
 @bot.tree.command(

@@ -9,7 +9,7 @@ from database.models import Base
 
 engine = create_engine("sqlite:///function/resources/database.db")
 Base.metadata.create_all(engine)
-SESSION = sessionmaker(bind=engine)
+SESSION = sessionmaker(bind=engine, expire_on_commit=False)
 
 
 @contextmanager

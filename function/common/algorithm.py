@@ -4,7 +4,7 @@ from common.utils import get_or_create_user, guesses, update_word, wordle_langua
 from database.models import User, UserGuessData
 from database.word import get_all_words, get_word_today
 from database.guess_data import get_user_guess_data, update_user_guess_data
-from function.common.consts import OWNER_ID
+from common.consts import OWNER_ID
 
 
 async def handle_correct_guess(
@@ -77,11 +77,11 @@ async def handle_incorrect_guess(
 async def analyze_answer(message: Message, bot: Client):
     await update_word(bot)
     user = get_or_create_user(message.author.id, message.author.name)
-    guess = message.content.lower()
-    guess_data = get_user_guess_data(user, user.language)
-    word = get_word_today(user.language)
     if user is None:
         return
+    guess = message.content.lower()
+    guess_data = get_user_guess_data(user.id, user.language)
+    word = get_word_today(user.language)
     if guess_data.answered:
         await message.reply("Du hast das Wort für heute bereits erraten.")
         return

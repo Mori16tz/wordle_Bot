@@ -1,6 +1,6 @@
 import random
 
-from discord import date
+from datetime import date
 from database.database import open_session
 from database.models import Language, Word, WordHistory
 
