@@ -4,10 +4,13 @@ from database.database import open_session
 
 def get_user_guess_data(user_id: int, language: Language) -> UserGuessData:
     with open_session() as session:
-        data = session.query(UserGuessData).filter(
-            UserGuessData.user_id == user_id,
-            UserGuessData.language == language
-        ).first()
+        data = (
+            session.query(UserGuessData)
+            .filter(
+                UserGuessData.user_id == user_id, UserGuessData.language == language
+            )
+            .first()
+        )
         if data is None:
             new_data = UserGuessData(user_id=user_id, language=language)
             session.add(new_data)

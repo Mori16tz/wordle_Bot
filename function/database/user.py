@@ -29,6 +29,7 @@ def reset_users() -> None:
         for user in users:
             for guess_data in user.user_guess_data:
                 guess_data.guesses = 0
-                guess_data.streak = 0
+                if not guess_data.answered:
+                    guess_data.streak = 0
                 guess_data.answered = False
             session.merge(user)

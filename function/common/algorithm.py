@@ -1,6 +1,6 @@
 from discord import Message, Embed, Client
 
-from common.utils import get_or_create_user, guesses, update_word, wordle_language
+from common.utils import get_or_create_user, guesses, update_word
 from database.models import User, UserGuessData
 from database.word import get_all_words, get_word_today
 from database.guess_data import get_user_guess_data, update_user_guess_data
@@ -18,7 +18,7 @@ async def handle_correct_guess(
         emoji_word += f":regional_indicator_{charackter}:"
         emoji_answer += "🟩"
     embed = Embed(
-        title=wordle_language(user.language),
+        title=user.language.wordle_title,
         description=f"{emoji_word}\n{emoji_answer}",
     )
     embed.set_footer(
@@ -26,8 +26,11 @@ async def handle_correct_guess(
     )
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
-    await bot.get_user(OWNER_ID).send(
-        f"{user.username} hat das {user.language}e Wort in {guesses(guess_data.guesses, "Versuch")} erraten."
+    owner = bot.get_user(OWNER_ID)
+    if owner is None:
+        return
+    await owner.send(
+        f"{user.username} hat das {user.language.wordle_title} in {guesses(guess_data.guesses, "Versuch")} erraten."
     )
 
 
@@ -58,7 +61,7 @@ async def handle_incorrect_guess(
             if not found:
                 emoji_answer += "🟥"
     embed = Embed(
-        title=wordle_language(user.language),
+        title=user.language.wordle_title,
         description=f"{emoji_word}\n{emoji_answer}",
     )
     if guess_data.guesses < 6:
@@ -67,9 +70,11 @@ async def handle_incorrect_guess(
         )
     else:
         embed.set_footer(text=f"Das Wort war {word}, viel Glück morgen!")
-        await bot.get_user(OWNER_ID).send(
-            f"{user.username} hat das Wort nicht erraten."
-        )
+        owner = bot.get_user(OWNER_ID)
+        if owner is not None:
+            await owner.send(
+                f"{user.username} hat das {user.language.wordle_title} nicht erraten."
+            )
     await message.reply(embed=embed)
     update_user_guess_data(guess_data)
 

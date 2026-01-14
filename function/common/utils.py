@@ -21,7 +21,10 @@ async def update_word(bot: Client) -> None:
             generate_word_today(language)
             reset_users()
             for user in get_users():
-                await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
+                discord_user = bot.get_user(user.id)
+                if discord_user is None:
+                    continue
+                await discord_user.send("Die Wörter wurden geupdatet.")
 
 
 def guesses(amount: int, word: str, n=True) -> str:
@@ -30,7 +33,3 @@ def guesses(amount: int, word: str, n=True) -> str:
     if n:
         return f"{amount} {word}en"
     return f"{amount} {word}e"
-
-
-def wordle_language(lang: Language) -> str:
-    return lang.value + "es Wordle"

@@ -8,8 +8,12 @@ Base = declarative_base()
 
 
 class Language(StrEnum):
-    EN = "en"
-    DE = "de"
+    EN = "Englisch"
+    DE = "Deutsch"
+
+    @property
+    def wordle_title(self) -> str:
+        return {Language.EN: "Englisches Wordle", Language.DE: "Deutsches Wordle"}[self]
 
 
 class User(Base):

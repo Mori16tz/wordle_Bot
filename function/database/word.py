@@ -31,6 +31,9 @@ def get_word_today(language: Language) -> str:
         return word_entry.word.word
 
 
-def get_all_words(language: Language) -> list[Word]:
+def get_all_words(language: Language) -> list[str]:
     with open_session() as session:
-        return session.query(Word).filter(Word.language == language).all()
+        return [
+            word.word
+            for word in session.query(Word).filter(Word.language == language).all()
+        ]

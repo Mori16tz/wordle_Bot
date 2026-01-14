@@ -1,5 +1,4 @@
 from datetime import datetime, time
-from zoneinfo import ZoneInfo
 
 import discord
 from discord import app_commands, DMChannel
@@ -53,7 +52,7 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Language):
 
 @tasks.loop(minutes=1)
 async def sync_clock():
-    berlin_time = datetime.now(tz=ZoneInfo("Europe/Berlin"))
+    berlin_time = datetime.now().astimezone()
     time_delta = berlin_time.utcoffset()
 
     dummy_date = datetime.combine(datetime.now(), time(0, 0, 0))
