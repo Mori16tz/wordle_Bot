@@ -2,14 +2,14 @@ from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
 import discord
-from discord import app_commands
+from discord import app_commands, DMChannel
 from discord.ext import commands, tasks
 
 from common.consts import TOKEN
 from common.algorithm import analyze_answer
 from common.utils import update_word
 from database.models import Language
-from database.user import get_user, update_user
+from database.user import get_or_create_user, update_user
 
 bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
 
@@ -22,9 +22,8 @@ async def on_ready() -> None:
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author != bot.user and type(message.channel) is discord.DMChannel:
+    if message.author != bot.user and type(message.channel) is DMChannel:
         await analyze_answer(message)
-        pass
 
 
 @bot.tree.command(
@@ -44,7 +43,7 @@ async def info(interaction: discord.Interaction):
 )
 @app_commands.describe(sprache="Die Sprache vom Wordle.")
 async def sprachauswahl(interaction: discord.Interaction, sprache: Language):
-    user = get_user(interaction.user.id, interaction.user.name)
+    user = get_or_create_user(interaction.user.id, interaction.user.name)
     user.language = sprache
     update_user(user)
     await interaction.response.send_message(

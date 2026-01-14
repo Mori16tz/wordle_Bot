@@ -1,10 +1,11 @@
-from discord import Client, Interaction
+from discord import Client
 
 from database.models import Language
 from database.user import add_user, get_user, get_users, reset_users
+from database.word import get_word_today, generate_word_today
 
 
-def get_user(user_id: int, username: str) -> None:
+def get_or_create_user(user_id: int, username: str) -> None:
     user = get_user(user_id)
     if user is None:
         add_user(user_id, username)
@@ -12,13 +13,14 @@ def get_user(user_id: int, username: str) -> None:
 
 
 async def update_word(bot: Client) -> None:
-    try:
-        get_word_today()
-    except ValueError:
-        generate_words_today()
-        reset_users()
-    for user in get_users():
-        await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
+    for language in Language:
+        try:
+            get_word_today(language)
+        except ValueError:
+            generate_word_today(language)
+            reset_users()
+            for user in get_users():
+                await bot.get_user(user.id).send("Die Wörter wurden geupdatet.")
 
 
 def guesses(amount: int, word: str, n=True) -> str:

@@ -1,11 +1,14 @@
-from discord import Message, Embed
+from discord import Message, Embed, Client
 
-from common.utils import get_user, guesses, wordle_language
+from common.utils import get_or_create_user, guesses, update_word, wordle_language
 from database.models import User, UserGuessData
+from database.word import get_all_words, get_word_today
+from database.guess_data import get_user_guess_data, update_user_guess_data
+from function.common.consts import OWNER_ID
 
 
 async def handle_correct_guess(
-    message: Message, user: User, guess_data: UserGuessData, word: str
+    message: Message, user: User, guess_data: UserGuessData, word: str, bot: Client
 ) -> None:
     emoji_word = ""
     emoji_answer = ""
@@ -29,7 +32,12 @@ async def handle_correct_guess(
 
 
 async def handle_incorrect_guess(
-    message: Message, user: User, guess_data: UserGuessData, word: str, guess: str
+    message: Message,
+    user: User,
+    guess_data: UserGuessData,
+    word: str,
+    guess: str,
+    bot: Client,
 ) -> None:
     emoji_word = ""
     emoji_answer = ""
@@ -66,17 +74,12 @@ async def handle_incorrect_guess(
     update_user_guess_data(guess_data)
 
 
-async def analyze_answer(message: Message):
-    user = get_user(message.author.id, message.author.name)
+async def analyze_answer(message: Message, bot: Client):
+    await update_word(bot)
+    user = get_or_create_user(message.author.id, message.author.name)
     guess = message.content.lower()
-    guess_data = get_current_guess_data(user)
-    word = ""
-    try:
-        word = get_word_today(user.language)
-    except ValueError:
-        generate_words_today()
-        reset_users()
-        word = get_word_today(user.language)
+    guess_data = get_user_guess_data(user, user.language)
+    word = get_word_today(user.language)
     if user is None:
         return
     if guess_data.answered:
@@ -90,6 +93,6 @@ async def analyze_answer(message: Message):
         return
     guess_data.guesses += 1
     if guess == word:
-        await handle_correct_guess(message, user, guess_data, word)
+        await handle_correct_guess(message, user, guess_data, word, bot)
     else:
-        await handle_incorrect_guess(message, user, guess_data, word, guess)
+        await handle_incorrect_guess(message, user, guess_data, word, guess, bot)
