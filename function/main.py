@@ -8,7 +8,7 @@ from common.consts import TOKEN
 from common.algorithm import analyze_answer
 from common.utils import get_or_create_user, update_word
 from database.models import Language
-from database.user import update_user
+from database.user import get_users, reset_users, update_user
 
 bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
 
@@ -68,6 +68,12 @@ async def sync_clock():
 @tasks.loop(hours=200000)
 async def daily_loop():
     await update_word(bot)
+    reset_users()
+    for user in get_users():
+        discord_user = bot.get_user(user.id)
+        if discord_user is None:
+            continue
+        await discord_user.send("Die Wörter wurden geupdatet.")
 
 
 bot.run(TOKEN)

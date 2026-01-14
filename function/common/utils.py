@@ -19,12 +19,6 @@ async def update_word(bot: Client) -> None:
             get_word_today(language)
         except ValueError:
             generate_word_today(language)
-            reset_users()
-            for user in get_users():
-                discord_user = bot.get_user(user.id)
-                if discord_user is None:
-                    continue
-                await discord_user.send("Die Wörter wurden geupdatet.")
 
 
 def guesses(amount: int, word: str, n=True) -> str:
