@@ -3,4 +3,3 @@ __pycache__/
 .venv/
 *.sh
 logs/
-function/resources/database.db
