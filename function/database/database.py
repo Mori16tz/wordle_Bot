@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from database.models import Base
 
 
-engine = create_engine("sqlite:///function/resources/database.db")
+engine = create_engine("mysql+pymysql://root:@localhost:3306/wordle")
 Base.metadata.create_all(engine)
 SESSION = sessionmaker(bind=engine, expire_on_commit=False)
 
