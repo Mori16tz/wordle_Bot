@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from database.models import Base
 
 
-engine = create_engine("mysql+pymysql://root:@localhost:3306/wordle",pool_pre_ping=True,pool_recylce=3600)
+engine = create_engine("mysql+pymysql://root:@localhost:3306/wordle",
+                       pool_pre_ping=True, pool_recycle=3600, pool_size=5, max_overflow=10)
 Base.metadata.create_all(engine)
 SESSION = sessionmaker(bind=engine, expire_on_commit=False)
 
