@@ -10,7 +10,8 @@ from common.utils import get_or_create_user, update_word
 from database.models import Language, NotificationState
 from database.user import get_users, reset_users, update_user
 
-bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
+bot = commands.Bot(command_prefix="",
+                   intents=discord.Intents.all(), help_command=None)
 
 
 @bot.event
