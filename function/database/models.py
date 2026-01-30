@@ -7,9 +7,11 @@ from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
 
+
 class NotificationState(StrEnum):
     Ein = "Ein"
     Aus = "Aus"
+
 
 class Language(StrEnum):
     EN = "Englisch"
@@ -28,12 +30,13 @@ class User(Base):
     language: Mapped[Language] = mapped_column(
         Enum(Language, native_enum=False), default=Language.EN
     )
-    notifications: Mapped[Language] = mapped_column(
+    notifications: Mapped[NotificationState] = mapped_column(
         Enum(NotificationState, native_enum=False), default=NotificationState.Ein
     )
 
     # Relationship
-    user_guess_data: Mapped[list["UserGuessData"]] = relationship(back_populates="user")
+    user_guess_data: Mapped[list["UserGuessData"]
+                            ] = relationship(back_populates="user")
 
 
 class Word(Base):
@@ -66,7 +69,8 @@ class WordHistory(Base):
 class UserGuessData(Base):
     __tablename__ = "user_guesses"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), primary_key=True)
     language: Mapped[Language] = mapped_column(
         Enum(Language, native_enum=False), primary_key=True
     )
