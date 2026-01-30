@@ -5,10 +5,11 @@ A multi language discord bot that is played in the DM's of the discord bot. A us
 ![example image](https://i.imgur.com/We3J8lQ.png)
 
 Currently supporting:
- - English
- - German
 
-## Ussage
+- English
+- German
+
+## Usage
 
 ### /sprachauswahl
 
@@ -18,10 +19,13 @@ Allows the user to change the language.
 
 Just the basic information on how the bot works.
 
+### /benachrichtigung
+
+Toggle to change if the user wants to receive the daily notification that there are new words or not.
+
 ### Useful Links
 
 - [Discord Invite](https://discord.com/oauth2/authorize?client_id=1452123180725571609)
 - [Discord DM](https://discord.com/users/1452123180725571609)
 - [GitHub](https://github.com/Mori16tz/wordle_Bot)
 - [GitHub Issues](https://github.com/Mori16tz/wordle_Bot/issues)
-
