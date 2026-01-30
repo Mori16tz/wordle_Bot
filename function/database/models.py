@@ -30,7 +30,7 @@ class User(Base):
     language: Mapped[Language] = mapped_column(
         Enum(Language, native_enum=False), default=Language.EN
     )
-    notifications: Mapped[NotificationState] = mapped_column(
+    notification: Mapped[NotificationState] = mapped_column(
         Enum(NotificationState, native_enum=False), default=NotificationState.Ein
     )
 

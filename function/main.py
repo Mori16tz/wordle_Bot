@@ -55,7 +55,7 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Language):
 @app_commands.describe(status="Der Status für die Benachrichtigungen.")
 async def benachrichtigung(interaction: discord.Interaction, status: NotificationState):
     user = get_or_create_user(interaction.user.id, interaction.user.name)
-    user.notifications = status
+    user.notification = status
     update_user(user)
     await interaction.response.send_message(
         f"Benachrichtigungen wurden zu {status} geändert.", ephemeral=True
@@ -85,7 +85,7 @@ async def daily_loop():
         discord_user = bot.get_user(user.id)
         if discord_user is None:
             continue
-        if user.notifications == NotificationState.Ein:
+        if user.notification == NotificationState.Ein:
             await discord_user.send("Die Wörter wurden geupdatet.\nDiese Benachrichtigung kann mit /benachrichtigung deaktiviert werden.")
 
 
