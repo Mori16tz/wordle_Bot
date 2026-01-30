@@ -1,4 +1,5 @@
 import datetime
+import enum
 from enum import StrEnum
 
 from sqlalchemy import Enum, ForeignKey
@@ -6,6 +7,9 @@ from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
 
+class NotificationState(StrEnum):
+    Ein = "Ein"
+    Aus = "Aus"
 
 class Language(StrEnum):
     EN = "Englisch"
@@ -23,6 +27,9 @@ class User(Base):
     username: Mapped[str]
     language: Mapped[Language] = mapped_column(
         Enum(Language, native_enum=False), default=Language.EN
+    )
+    notifications: Mapped[Language] = mapped_column(
+        Enum(NotificationState, native_enum=False), default=NotificationState.Ein
     )
 
     # Relationship

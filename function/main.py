@@ -7,7 +7,7 @@ from discord.ext import commands, tasks
 from common.consts import TOKEN
 from common.algorithm import analyze_answer
 from common.utils import get_or_create_user, update_word
-from database.models import Language
+from database.models import Language, NotificationState
 from database.user import get_users, reset_users, update_user
 
 bot = commands.Bot(command_prefix="", intents=discord.Intents.all(), help_command=None)
@@ -50,6 +50,17 @@ async def sprachauswahl(interaction: discord.Interaction, sprache: Language):
     )
 
 
+@bot.tree.command(name="benachrichtigung", description="Ändere die Benachrichtigungseinstellung.")
+@app_commands.describe(status="Der Status für die Benachrichtigungen.")
+async def benachrichtigung(interaction: discord.Interaction, status: NotificationState):
+    user = get_or_create_user(interaction.user.id, interaction.user.name)
+    user.notifications = status
+    update_user(user)
+    await interaction.response.send_message(
+        f"Benachrichtigungen wurden zu {status} geändert.", ephemeral=True
+    )
+
+
 @tasks.loop(minutes=1)
 async def sync_clock():
     berlin_time = datetime.now().astimezone()
@@ -73,7 +84,8 @@ async def daily_loop():
         discord_user = bot.get_user(user.id)
         if discord_user is None:
             continue
-        await discord_user.send("Die Wörter wurden geupdatet.")
+        if user.notifications == NotificationState.Ein:
+            await discord_user.send("Die Wörter wurden geupdatet.\nDiese Benachrichtigung kann mit /benachrichtigung deaktiviert werden.")
 
 
 bot.run(TOKEN)
