@@ -2,7 +2,7 @@ import datetime
 import enum
 from enum import StrEnum
 
-from sqlalchemy import Enum, ForeignKey
+from sqlalchemy import Enum, ForeignKey, BigInteger
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -37,6 +37,8 @@ class User(Base):
     # Relationship
     user_guess_data: Mapped[list["UserGuessData"]
                             ] = relationship(back_populates="user")
+    user_guess_history: Mapped[list["GuessHistory"]
+                               ] = relationship(back_populates="user")
 
 
 class Word(Base):
@@ -64,6 +66,8 @@ class WordHistory(Base):
 
     # Relationship
     word: Mapped[Word] = relationship(back_populates="word_history_entries")
+    user_guess_history: Mapped[list["GuessHistory"]
+                               ] = relationship(back_populates="word_history")
 
 
 class UserGuessData(Base):
@@ -80,3 +84,16 @@ class UserGuessData(Base):
 
     # Relationship
     user: Mapped[User] = relationship(back_populates="user_guess_data")
+
+
+class GuessHistory(Base):
+    __tablename__ = "guess_history"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    guess: Mapped[str]
+    user_id: Mapped[int] = mapped_column(BigInteger, ForeignKey("users.id"))
+    word_history_id: Mapped[int] = mapped_column(ForeignKey("word_history.id"))
+
+    user: Mapped[User] = relationship(back_populates="user_guess_history")
+    word_history: Mapped[WordHistory] = relationship(
+        back_populates="user_guess_history")

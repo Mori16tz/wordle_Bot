@@ -18,7 +18,7 @@ def generate_word_today(language: Language) -> str:
     return random_word.word
 
 
-def get_word_today(language: Language) -> str:
+def get_word_today(language: Language) -> Word:
     with open_session() as session:
         word_entry = (
             session.query(WordHistory)
@@ -28,7 +28,7 @@ def get_word_today(language: Language) -> str:
         )
         if word_entry is None:
             raise ValueError
-        return word_entry.word.word
+        return word_entry.word
 
 
 def get_all_words(language: Language) -> list[str]:
@@ -37,3 +37,8 @@ def get_all_words(language: Language) -> list[str]:
             word.word
             for word in session.query(Word).filter(Word.language == language).all()
         ]
+
+
+def get_word_history(word_id: int, date: date = date.today()) -> WordHistory:
+    with open_session() as session:
+        return session.query(WordHistory).filter(WordHistory.word_id==word_id, WordHistory.date==date).first()
