@@ -1,7 +1,7 @@
 from discord import Message, Embed, Client
 
 from common.utils import get_or_create_user, guesses, update_word
-from database.models import User, UserGuessData, WordHistory, Word
+from database.models import User, UserGuessData, Word
 from database.word import get_all_words, get_word_today, get_word_history
 from database.guess_data import get_user_guess_data, update_user_guess_data
 from database.guess_history import add_new_user_guess
@@ -10,18 +10,36 @@ from common.consts import OWNER_ID
 
 
 async def handle_correct_guess(
-    message: Message, user: User, guess_data: UserGuessData, word: str, bot: Client
+    message: Message, user: User, guess_data: UserGuessData, word: Word, bot: Client
 ) -> None:
-    emoji_word = ""
-    emoji_answer = ""
     guess_data.answered = True
     guess_data.streak += 1
-    for charackter in word:
-        emoji_word += f":regional_indicator_{charackter}:"
-        emoji_answer += "🟩"
+    description = ""
+    word_history = get_word_history(word.id)
+    for history in get_user_guess_history(user.id, word_history.id):
+        guess = history.guess
+        emoji_word = ""
+        emoji_answer = ""
+        marked = list(word.word)
+        for i in range(0, 5):
+            found = False
+            emoji_word += f":regional_indicator_{guess[i]}:"
+            if guess[i] == word.word[i]:
+                emoji_answer += "🟩"
+            else:
+                for j in range(0, 5):
+                    if guess[i] == word.word[j] and guess[j] != word.word[j]:
+                        if word.word[j] in marked:
+                            emoji_answer += "🟨"
+                            found = True
+                            marked.remove(word.word[j])
+                            break
+                if not found:
+                    emoji_answer += "🟥"
+        description = f"{description}\n{emoji_word}\n{emoji_answer}"
     embed = Embed(
         title=user.language.wordle_title,
-        description=f"{emoji_word}\n{emoji_answer}",
+        description=description,
     )
     embed.set_footer(
         text=f"Damit hast du an {guesses(guess_data.streak, "Tag")} in Folge das Wort erraten."
@@ -106,6 +124,6 @@ async def analyze_answer(message: Message, bot: Client):
     word_history = get_word_history(word.id)
     add_new_user_guess(user.id, word_history.id, guess)
     if guess == word.word:
-        await handle_correct_guess(message, user, guess_data, word.word, bot)
+        await handle_correct_guess(message, user, guess_data, word, bot)
     else:
         await handle_incorrect_guess(message, user, guess_data, word, bot)
